@@ -2,6 +2,7 @@
   <body>
     <p>{{ flash }}</p>
     <form action="/login" method="post">
+      {{! MISSING CSRF TOKEN }}
       <div>
         <label>Username:</label>
         <input type="text" name="username" value="marty" />
