@@ -41,39 +41,49 @@ const db = new sqlite3.Database(":memory:");
 db.serialize(() => {
    db.run("CREATE TABLE users (id integer primary key, username varchar(255), email varchar(255), password varchar(1024))");
    users.forEach(({ username, email, password }) => {
-      db.run(`INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${password}')`);
+      db.run("INSERT INTO users (username, email, password) VALUES ($name, $mail, $pwd)", {
+         $name: username,
+         $mail: email,
+         $pwd: password,
+      });
    });
 
    db.run("CREATE TABLE guests (id integer primary key, name varchar(20))");
    guests.forEach(({ name }) => {
-      db.run(`INSERT INTO guests (name) VALUES ('${name}')`);
+      db.run("INSERT INTO guests (name) VALUES ($name)", { $name: name });
    });
 });
 
 passport.use(
    new LocalStrategy((username, password, done) => {
       console.log(`Looking for user ${username}`);
-      db.get(`SELECT id, username, email, password FROM users WHERE username = '${username}'`, (error, user) => {
-         console.log(`Found him: ${JSON.stringify(user)}`);
-         if (error) {
-            console.log("Error");
-            return done(error);
-         }
+      db.get(
+         "SELECT id, username, email, password FROM users WHERE username = $username",
+         {
+            $username: username,
+         },
+         (error, user) => {
+            console.log(`Found him: ${JSON.stringify(user)}`);
+            if (error) {
+               console.log("Error");
+               return done(error);
+            }
 
-         if (!user) {
-            console.log("User does not exist");
-            return done(null, false);
-         }
+            if (!user) {
+               console.log("User does not exist");
+               return done(null, false);
+            }
 
-         if (password !== user.password) {
-            console.log("Password is wrong");
-            return done(null, false);
-         }
+            if (password !== user.password) {
+               console.log("Password is wrong");
+               return done(null, false);
+            }
 
-         const { id, username, email } = user;
-         console.log(`Authenticating user ${username}`);
-         return done(null, { id, username, email });
-      });
+            const { id, username, email } = user;
+            console.log(`Authenticating user ${username}`);
+            return done(null, { id, username, email });
+         }
+      );
    })
 );
 
@@ -169,7 +179,7 @@ app.post(
    "/invite",
    body("guest").isLength({ min: 4, max: 30 }).withMessage("Guest name must be beetween 4 and 40 carac").not().isEmpty().withMessage("Guest is missing"),
    (req, res) => {
-      db.exec(`INSERT INTO guests (name) VALUES ('${req.body.guest}')`);
+      db.run("INSERT INTO guests (name) values ($name)", { $name: req.body.guest });
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
          return res.status(400).json({ errors: errors.array() });
