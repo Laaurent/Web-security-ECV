@@ -1,0 +1,26 @@
+<html>
+  <body>
+    <h1>Party planner</h1>
+    <h2>{{ welcomeMessage }}</h2>
+    <p>You are connected as {{{ user.username }}}</p>
+    <a href='/logout'>Logout</a>
+    <div>
+      <p>Your id is {{ user.id }}</p>
+      <p>Your email is {{{ user.email }}}</p>
+    </div>
+    <form action="/invite" method="post">
+      <div>
+        <label>Type a guest name to invite him</label>
+        <input type="text" name="guest" value="John Doe" />
+      </div>
+      <div>
+        <input type="submit" value="Invite" />
+      </div>
+    </form>
+    <ul>
+      {{ #guests }}
+        <li>{{{ . }}}</li>
+      {{ /guests }}
+    </ul>
+  </body>
+</html>
