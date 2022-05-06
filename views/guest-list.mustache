@@ -9,6 +9,8 @@
       <p>Your email is {{{ user.email }}}</p>
     </div>
     <form action="/invite" method="post">
+      {{! MISSING CSRF TOKEN }}
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
       <div>
         <label>Type a guest name to invite him</label>
         <input type="text" name="guest" value="John Doe" />

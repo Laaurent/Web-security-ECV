@@ -9,9 +9,12 @@ const LocalStrategy = require("passport-local").Strategy;
 const sqlite3 = require("sqlite3").verbose();
 
 const { body, validationResult } = require("express-validator");
+var csrf = require("csurf");
 
 const app = express();
 const port = 3000;
+
+var csrfProtection = csrf({ cookie: true });
 
 app.engine("mustache", mustacheExpress());
 app.set("view engine", "mustache");
@@ -113,7 +116,7 @@ const redirectIfConnect = (req, res, next) => {
    }
 };
 
-app.get("/", redirectIfAnonymous, (req, res) => {
+app.get("/", csrfProtection, redirectIfAnonymous, (req, res) => {
    const { user } = req.session.passport;
    const welcomeMessage = req.query.welcome ? req.query.welcome : "Welcome to the party !";
 
@@ -122,6 +125,7 @@ app.get("/", redirectIfAnonymous, (req, res) => {
          user,
          welcomeMessage,
          guests: rows.map(({ name }) => name),
+         csrfToken: req.csrfToken(),
       });
    });
 });
@@ -131,14 +135,15 @@ app.get("/logout", (req, res) => {
    res.redirect("/login");
 });
 
-app.get("/login", redirectIfConnect, (req, res) => {
+app.get("/login", csrfProtection, redirectIfConnect, (req, res) => {
    console.log("/login");
-   res.render("login.mustache", { flash: req.flash("error") });
+   res.render("login.mustache", { flash: req.flash("error"), csrfToken: req.csrfToken() });
 });
 
 /* Missing data validation  */
 app.post(
    "/login",
+   csrfProtection,
    body("username").isLength({ min: 4, max: 30 }).withMessage("firstname must be beetween 4 and 40 carac").not().isEmpty().withMessage("firstname is missing"),
    body("password")
       .not()
@@ -177,6 +182,7 @@ app.post(
 /* Missing data validation  */
 app.post(
    "/invite",
+   csrfProtection,
    body("guest").isLength({ min: 4, max: 30 }).withMessage("Guest name must be beetween 4 and 40 carac").not().isEmpty().withMessage("Guest is missing"),
    (req, res) => {
       db.run("INSERT INTO guests (name) values ($name)", { $name: req.body.guest });

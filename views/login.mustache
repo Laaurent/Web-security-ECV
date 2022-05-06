@@ -3,6 +3,7 @@
     <p>{{ flash }}</p>
     <form action="/login" method="post">
       {{! MISSING CSRF TOKEN }}
+       <input type="hidden" name="_csrf" value="{{csrfToken}}">
       <div>
         <label>Username:</label>
         <input type="text" name="username" value="marty" />
