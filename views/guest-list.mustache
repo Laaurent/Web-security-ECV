@@ -1,4 +1,6 @@
 <html>
+  <title>Web Security</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <body>
     <h1>Party planner</h1>
     <h2>{{ welcomeMessage }}</h2>
@@ -11,6 +13,7 @@
     <form action="/invite" method="post">
       {{! MISSING CSRF TOKEN }}
       <input type="hidden" name="_csrf" value="{{csrfToken}}">
+      <div class="g-recaptcha" data-sitekey="{{ siteKey }}"></div>
       <div>
         <label>Type a guest name to invite him</label>
         <input type="text" name="guest" value="John Doe" />
