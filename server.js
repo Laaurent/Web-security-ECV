@@ -145,25 +145,7 @@ app.post(
    "/login",
    csrfProtection,
    body("username").isLength({ min: 4, max: 30 }).withMessage("firstname must be beetween 4 and 40 carac").not().isEmpty().withMessage("firstname is missing"),
-   body("password")
-      .not()
-      .isEmpty()
-      .withMessage("password is missing")
-      .isStrongPassword({
-         minLength: 8,
-         minLowercase: 1,
-         minUppercase: 1,
-         minNumbers: 1,
-         minSymbols: 1,
-         returnScore: false,
-         pointsPerUnique: 1,
-         pointsPerRepeat: 0.5,
-         pointsForContainingLower: 10,
-         pointsForContainingUpper: 10,
-         pointsForContainingNumber: 10,
-         pointsForContainingSymbol: 10,
-      })
-      .withMessage("password must be  valid"),
+   body("password").not().isEmpty().withMessage("password is missing"),
    (req, res, next) => {
       /* console.log(`Trying to authenticate with following credentials: ${req.body.username} ${req.body.password}`); */
       const errors = validationResult(req);
